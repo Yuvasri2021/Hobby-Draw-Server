@@ -1,13 +1,11 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret';
 
-const authMiddleware = async (req, res, next) => {
+module.exports = function (req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(403).json({ message: 'Authorization token missing or invalid' });
+    return res.status(401).json({ message: 'No token provided' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -17,8 +15,6 @@ const authMiddleware = async (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
+    res.status(403).json({ message: 'Invalid token' });
   }
 };
-
-module.exports = authMiddleware;
